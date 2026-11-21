@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1220">
+<meta name="robots" content="noindex, nofollow">
+<title>Калькулятор стоимости уборки — Махачкала</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1220;--pn:#131c30;--ln:#243049;--tx:#eef2fb;--mut:#8d9bb7;--ac:#2de2c4;--ink:#04201b;box-sizing:border-box;color-scheme:dark;padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:radial-gradient(900px 500px at 80% -10%,rgba(45,226,196,.12),transparent 60%),var(--bg);color:var(--tx);font:400 16px/1.5 'Golos Text',system-ui,sans-serif;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+h1,h2{font-family:'Unbounded',sans-serif;margin:0;line-height:1.15}
+.w{max-width:680px;margin:auto;padding:0 18px}
+.hd{padding:32px 0 8px}.hd small{color:var(--ac);font-weight:600;letter-spacing:2px;text-transform:uppercase;font-size:12px}
+.hd h1{font-size:clamp(24px,6vw,34px);margin:8px 0 6px}.hd p{margin:0;color:var(--mut)}
+.inf{margin:10px 0 0;color:var(--mut);font-size:14px}.inf a{color:var(--ac);font-weight:600}.demo{display:inline-block;margin-top:12px;padding:4px 10px;border-radius:100px;background:#3a2f12;color:#ffd166;font-size:12px;font-weight:600}
+.blk{background:var(--pn);border:1px solid var(--ln);border-radius:20px;padding:20px;margin-top:14px}
+.blk h2{font-size:14px;color:var(--mut);font-family:'Golos Text',sans-serif;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.ch{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:11px 16px;border-radius:14px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font:500 15px 'Golos Text',sans-serif;cursor:pointer;transition:.2s}
+.chip:hover{border-color:var(--ac)}.chip.on{background:var(--ac);border-color:var(--ac);color:var(--ink);font-weight:600}
+select{width:100%;padding:13px;border-radius:14px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font:inherit;font-size:16px}
+.st{display:flex;align-items:center;gap:16px}.st button{width:46px;height:46px;border-radius:14px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font-size:22px;cursor:pointer}
+.st button:hover{border-color:var(--ac)}.st output{min-width:56px;text-align:center;font:700 26px 'Unbounded',sans-serif}.st span{color:var(--mut)}
+.res{position:fixed;left:0;right:0;bottom:0;z-index:10;background:color-mix(in srgb,var(--pn) 94%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--ln);padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px))}
+.res .w{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.res small{display:block;color:var(--mut);font-size:12px}.res b{font:700 24px 'Unbounded',sans-serif}
+.go{padding:15px 22px;border:0;border-radius:16px;background:var(--ac);color:var(--ink);font:700 16px 'Golos Text',sans-serif;cursor:pointer;white-space:nowrap}
+.go:disabled{opacity:.4;cursor:not-allowed}
+.nt{color:var(--mut);font-size:13px;margin:16px 0 0;text-align:center}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+@media(max-width:420px){.res b{font-size:20px}.go{padding:14px 16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w"><div class="hd"><small id="nm"></small><h1 id="tl"></h1><p id="sb"></p><p class="inf" id="inf"></p><span class="demo" id="demo">Образец: услуги и цены условные</span></div><div id="fs"></div><p class="nt" id="note"></p></div>
+<div class="res"><div class="w"><div><small>Ориентировочно</small><b id="tot">0</b></div><button class="go" type="button" id="go">Отправить заявку в WhatsApp</button></div></div>
+<script>
+/* ===== НАСТРОЙКИ: меняется только этот блок =====
+ Итог = (сумма add выбранных вариантов и галочек) × (все числовые поля) + base.
+ Для услуг «за м²»: add = цена за м², числовое поле = площадь. */
+const CFG={name:'Клининговая компания, Махачкала',title:'Рассчитайте стоимость уборки',sub:'Выберите параметры и отправьте заявку в WhatsApp',wa:'79667433333',currency:'₽',base:0,demo:true,
+info:'Газпромная улица, 15 · ежедневно 7:00–21:00, по предварительному звонку · <a href="tel:+79667433333">+7 (966) 743-33-33</a>',
+note:'Цена ориентировочная. Точную стоимость назовёт менеджер.',
+fields:[
+{id:'o',type:'select',label:'Помещение',opts:[{l:'Квартира',add:0},{l:'Дом',add:0},{l:'Офис',add:0}]},
+{id:'t',type:'select',label:'Вид уборки',opts:[{l:'Поддерживающая',add:70},{l:'Генеральная',add:130},{l:'После ремонта',add:190}]},
+{id:'a',type:'number',label:'Площадь',min:20,max:500,def:50,step:5,unit:'м²'},
+{id:'x',type:'checks',label:'Дополнительно',opts:[{l:'Мытьё окон',fix:800},{l:'Уборка балкона',fix:600},{l:'Химчистка дивана',fix:1500}]}]};
+/* ================================================= */
+const $=q=>document.querySelector(q),fmt=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n))+'\u00a0'+CFG.currency;
+const S={};CFG.fields.forEach(f=>{S[f.id]=f.type==='select'?-1:f.type==='checks'?f.opts.map(o=>!!o.on):f.def||f.min||1});
+function calc(cfg,st){let add=0,mul=1,fix=0,ok=true;cfg.fields.forEach(f=>{const v=st[f.id];
+ if(f.type==='select'){if(v<0)ok=false;else{add+=f.opts[v].add||0;fix+=f.opts[v].fix||0}}
+ else if(f.type==='checks'){f.opts.forEach((o,i)=>{if(v[i]){add+=o.add||0;fix+=o.fix||0}})}
+ else mul*=v});
+ return{ok,total:add*mul+fix+(cfg.base||0)}}
+function draw(){const r=calc(CFG,S);$('#tot').textContent=r.ok?'от '+fmt(r.total):'—';$('#go').disabled=!r.ok}
+function build(){$('#nm').textContent=CFG.name;$('#tl').textContent=CFG.title;$('#sb').textContent=CFG.sub;$('#note').textContent=CFG.note;$('#inf').innerHTML=CFG.info;$('#demo').hidden=!CFG.demo;document.title=CFG.title+' — '+CFG.name;
+ $('#fs').innerHTML=CFG.fields.map(f=>{let b='';
+  if(f.type==='select'){b=f.opts.length<=6?`<div class="ch" data-f="${f.id}">`+f.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o.l}</button>`).join('')+'</div>':`<select data-f="${f.id}"><option value="-1">Выберите</option>`+f.opts.map((o,i)=>`<option value="${i}">${o.l}</option>`).join('')+'</select>'}
+  else if(f.type==='checks'){b=`<div class="ch" data-f="${f.id}">`+f.opts.map((o,i)=>`<button type="button" class="chip${o.on?' on':''}" data-i="${i}" aria-pressed="${!!o.on}">${o.l}</button>`).join('')+'</div>'}
+  else{b=`<div class="st" data-f="${f.id}"><button type="button" data-d="-1" aria-label="Меньше">−</button><output>${S[f.id]}</output><button type="button" data-d="1" aria-label="Больше">+</button><span>${f.unit||''}</span></div>`}
+  return `<div class="blk"><h2>${f.label}</h2>${b}</div>`}).join('');draw()}
+$('#fs').addEventListener('click',e=>{const box=e.target.closest('[data-f]');if(!box)return;const f=CFG.fields.find(x=>x.id===box.dataset.f);
+ const chip=e.target.closest('.chip'),d=e.target.closest('[data-d]');
+ if(chip&&f.type==='select'){S[f.id]=+chip.dataset.i;box.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c===chip))}
+ else if(chip&&f.type==='checks'){const i=+chip.dataset.i;S[f.id][i]=!S[f.id][i];chip.classList.toggle('on',S[f.id][i]);chip.setAttribute('aria-pressed',S[f.id][i])}
+ else if(d){S[f.id]=Math.min(f.max||99,Math.max(f.min||1,S[f.id]+(+d.dataset.d)*(f.step||1)));box.querySelector('output').textContent=S[f.id]}
+ draw()});
+$('#fs').addEventListener('change',e=>{const el=e.target.closest('select[data-f]');if(el){S[el.dataset.f]=+el.value;draw()}});
+$('#go').onclick=()=>{const r=calc(CFG,S);if(!r.ok)return;const L=['Здравствуйте! Хочу рассчитать и записаться: '+CFG.name+'.'];
+ CFG.fields.forEach(f=>{const v=S[f.id];if(f.type==='select')L.push(f.label+': '+f.opts[v].l);else if(f.type==='checks'){const c=f.opts.filter((o,i)=>v[i]).map(o=>o.l);if(c.length)L.push(f.label+': '+c.join(', '))}else L.push(f.label+': '+v+(f.unit?' '+f.unit:''))});
+ L.push('Ориентировочно: от '+fmt(r.total));window.open('https://wa.me/'+CFG.wa+'?text='+encodeURIComponent(L.join('\n')),'_blank','noopener')};
+build();
+</script>
+</body>
+</html>
